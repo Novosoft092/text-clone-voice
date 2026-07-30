@@ -1,0 +1,8 @@
+build:
+  gpu: true
+  system_packages: ["ffmpeg", "git"]
+    python_version: "3.10"
+    python_packages: ["torch==2.3.1", "torchaudio==2.3.1", "transformers==4.44.0", "soundfile", "numpy"]
+    run: ["pip install git+https://github.com/ai4bharat/IndicF5.git"]
+
+  predict: "predict.py:Predictor"
