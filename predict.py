@@ -6,6 +6,7 @@ import soundfile as sf
 import numpy as np
 import torch
 from huggingface_hub import hf_hub_download
+from safetensors.torch import load_file
 from pydub import AudioSegment
 from f5_tts.infer.utils_infer import (
     infer_process,
@@ -21,17 +22,23 @@ class Predictor(BasePredictor):
         print("[setup] Starting model load...", flush=True)
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.vocoder = load_vocoder(vocoder_name="vocos", is_local=False, device=self.device)
-        ckpt_path = hf_hub_download("ai4bharat/IndicF5", filename="model.safetensors")
-        vocab_path = hf_hub_download("ai4bharat/IndicF5", filename="checkpoints/vocab.txt")
-        print(f"[setup] Loading checkpoint from {ckpt_path}", flush=True)
         self.ema_model = load_model(
             DiT,
             dict(dim=1024, depth=22, heads=16, ff_mult=2, text_dim=512, conv_layers=4),
-            ckpt_path=ckpt_path,
             mel_spec_type="vocos",
-            vocab_file=vocab_path,
+            vocab_file=hf_hub_download("ai4bharat/IndicF5", filename="checkpoints/vocab.txt"),
             device=self.device,
         )
+        ckpt_path = hf_hub_download("ai4bharat/IndicF5", filename="model.safetensors")
+        print(f"[setup] Loading checkpoint from {ckpt_path}", flush=True)
+        raw_sd = load_file(ckpt_path, device=self.device)
+        print(f"[setup] sample keys: {list(raw_sd.keys())[:3]}", flush=True)
+        sd = {}
+        for k in raw_sd:
+            nk = k[10:] if k.startswith("ema_model.") else k
+            sd[nk] = raw_sd[k]
+        missing, unexpected = self.ema_model.load_state_dict(sd, strict=False)
+        print(f"[setup] missing={len(missing)} unexpected={len(unexpected)}", flush=True)
         print("[setup] Model loaded successfully.", flush=True)
 
     def predict(self, text: str = Input(description="Text to speak"), ref_audio: Path = Input(description="Reference speaker audio wav"), ref_text: str = Input(description="Reference audio transcript")) -> Path:
