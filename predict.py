@@ -35,7 +35,7 @@ class Predictor(BasePredictor):
         print(f"[setup] sample keys: {list(raw_sd.keys())[:3]}", flush=True)
         sd = {}
         for k in raw_sd:
-            nk = k[10:] if k.startswith("ema_model.") else k
+            nk = k.replace("ema_model._orig_mod.", "").replace("ema_model.", "")
             sd[nk] = raw_sd[k]
         missing, unexpected = self.ema_model.load_state_dict(sd, strict=False)
         print(f"[setup] missing={len(missing)} unexpected={len(unexpected)}", flush=True)
