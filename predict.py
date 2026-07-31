@@ -19,7 +19,7 @@ from f5_tts.model import DiT
 class Predictor(BasePredictor):
     def setup(self):
         print("[setup] Starting model load...", flush=True)
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.vocoder = load_vocoder(vocoder_name="vocos", is_local=False, device=self.device)
         ckpt_path = hf_hub_download("ai4bharat/IndicF5", filename="model.safetensors")
         vocab_path = hf_hub_download("ai4bharat/IndicF5", filename="checkpoints/vocab.txt")
