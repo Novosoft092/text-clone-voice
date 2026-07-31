@@ -27,7 +27,7 @@ class Predictor(BasePredictor):
         self.ema_model = load_model(
             DiT,
             dict(dim=1024, depth=22, heads=16, ff_mult=2, text_dim=512, conv_layers=4),
-            ckpt_path,
+            ckpt_path=ckpt_path,
             mel_spec_type="vocos",
             vocab_file=vocab_path,
             device=self.device,
