@@ -9,7 +9,7 @@ from transformers import AutoModel
 class Predictor(BasePredictor):
       def setup(self):
             print("[setup] Starting model load...", flush=True)
-            self.model = AutoModel.from_pretrained("ai4bharat/IndicF5", trust_remote_code=True)
+            self.model = AutoModel.from_pretrained("ai4bharat/IndicF5", trust_remote_code=True, remove_sil=False)
             print("[setup] Model loaded successfully.", flush=True)
 
       def predict(self, text: str = Input(description="Text to speak"), ref_audio: Path = Input(description="Reference speaker audio wav"), ref_text: str = Input(description="Reference audio transcript")) -> Path:
